@@ -1,0 +1,36 @@
+name: CI/CD Pipeline for MySQL
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v3
+
+    - name: Install MySQL Client
+      run: sudo apt-get update && sudo apt-get install -y mysql-client
+
+    - name: Initial Schema Deployment
+      run: mysql --host=${{ secrets.DB_HOST }} --user=${{ secrets.DB_USER }} --password=${{ secrets.DB_PASS }} < sql/create_climate_table.sql
+
+    - name: Schema Update
+      run: mysql --host=${{ secrets.DB_HOST }} --user=${{ secrets.DB_USER }} --password=${{ secrets.DB_PASS }} < sql/add_humidity_column.sql
+
+    - name: Data Seeding
+      run: mysql --host=${{ secrets.DB_HOST }} --user=${{ secrets.DB_USER }} --password=${{ secrets.DB_PASS }} < sql/seed_climate_data.sql
+
+    - name: Concurrent Query Execution
+      run: python3 scripts/multi_thread_queries.py
+
+    - name: Validation
+      run: |
+        mysql --host=${{ secrets.DB_HOST }} --user=${{ secrets.DB_USER }} --password=${{ secrets.DB_PASS }} -e "
+        USE project_db;
+        SELECT COUNT(*) FROM ClimateData;
+        "
