@@ -25,6 +25,14 @@ jobs:
     - name: Data Seeding
       run: mysql --host=${{ secrets.DB_HOST }} --user=${{ secrets.DB_USER }} --password=${{ secrets.DB_PASS }} < sql/seed_climate_data.sql
 
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.x'
+    
+    - name: Install Dependencies
+      run: pip install mysql-connector-python
+
     - name: Concurrent Query Execution
       run: python3 scripts/multi_thread_queries.py
 
