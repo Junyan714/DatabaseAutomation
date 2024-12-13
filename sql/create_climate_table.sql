@@ -1,4 +1,4 @@
-CREATE TABLE ClimateData (
+CREATE TABLE project_db.ClimateData (
     record_id INT AUTO_INCREMENT PRIMARY KEY,
     location VARCHAR(100) NOT NULL,
     record_date DATE NOT NULL,
